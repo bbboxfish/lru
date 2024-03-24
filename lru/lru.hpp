@@ -609,8 +609,8 @@ public:
 		 * iter++
 		 */
 		const_iterator operator++(int) {
-			iterator temp = *this;
-        	if (it)
+			const_iterator temp = *this;
+        	if (it != const_iterator())
             ++it;
         	return temp;
 		}
@@ -618,7 +618,7 @@ public:
 		 * ++iter
 		 */
 		const_iterator &operator++() {
-			if(it == nullptr )
+			if(it == const_iterator() )
 			throw std::runtime_error("invalid operation");
             ++it;
         	return *this;
@@ -627,8 +627,8 @@ public:
 		 * iter--
 		 */
 		const_iterator operator--(int) {
-			iterator temp = *this;
-        	if (it)
+			const_iterator temp = *this;
+        	if (it != const_iterator())
             --it;
         	return temp;
 		}
@@ -636,7 +636,7 @@ public:
 		 * --iter
 		 */
 		const_iterator &operator--() {
-			if (it == nullptr )
+			if (it == const_iterator())
 			throw std::runtime_error("invalid operation");
             --it;
         	return *this;
@@ -647,7 +647,7 @@ public:
 		 * throw 
 		*/
 		const value_type &operator*() const {
-			if (!it) {
+			if (it == const_iterator()) {
             throw "Iterator points to nothing";
         	}
         	return *it;
@@ -791,8 +791,8 @@ public:
 	}
 
 	pair<iterator, bool> insert(const value_type &value) {
-		hash_iterator tmp = exist(value.first);
 		if(size_ >= f * cap)  db();
+		hash_iterator tmp = exist(value.first);
 		if(tmp.it_ != tmp.pos->end()){//找到
 			order.erase(*(tmp.it_));
 			order.insert_head(value);//更新
@@ -872,6 +872,9 @@ public:
     */
     void save(const value_type &v) {
 		auto tmp = lhm.insert(v);
+		if(lhm.size() > memory){
+			lhm.remove(lhm.begin());
+		}
     }
     /**
      * return a pointer contain the value
