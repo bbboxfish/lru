@@ -279,7 +279,13 @@ public:
 		c = initial_c;
 		cap = new list[c];
 	}
-	hashmap(const hashmap &other): c(other.c), size(other.size), cap(other.cap){		
+	hashmap(const hashmap &other){		
+		c = other.c;
+		size = other.size;
+		cap = new list[c];
+		for(int i=0;i<c;i++){
+			cap[i] = other.cap[i];
+		}
 	}
 	~hashmap(){
 		delete [] cap;
