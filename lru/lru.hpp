@@ -69,6 +69,7 @@ template<class T> class double_list{
 			delete p;
 			p = q;
 		}
+		head = tail = nullptr;
 		node *cur = other.head;
     	while (cur != nullptr) {
 			insert_tail(*(cur->data));
@@ -198,6 +199,7 @@ template<class T> class double_list{
 				delete p;
 				p = q;
 			}
+		head = tail = nullptr;
 	}
 	void insert_head(const T &val){
 		node *newNode = new node(val);
