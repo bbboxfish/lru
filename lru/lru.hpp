@@ -28,6 +28,9 @@ template<class T> class double_list{
 				node *prev;
 				node *next;
 				node(const T &data) : data(new T(data)), prev(nullptr), next(nullptr) {}
+				~node(){
+					delete data;
+				}
 			};
 			node *head;
 			node *tail;
@@ -527,7 +530,8 @@ public:
 		 */
 		iterator operator++(int) {
 			iterator temp = *this;
-        	if (it)
+        	if (it == iterator())
+			throw std::runtime_error("invalid operation");
             ++it;
         	return temp;
 		}
@@ -535,7 +539,7 @@ public:
 		 * ++iter
 		 */
 		iterator &operator++() {
-			if(it == end())
+			if(it == iterator())
 			throw std::runtime_error("invalid operation");
             ++it;
         	return *this;
@@ -545,7 +549,7 @@ public:
 		 */
 		iterator operator--(int) {
 			iterator temp = *this;
-        	if (it)
+        	if (it!= iterator())
             --it;
         	return temp;
 		}
@@ -666,9 +670,20 @@ public:
 		}
 	};
  
-	linked_hashmap():size_(0),cap(cap),data(new typename sjtu::double_list<addr>[cap]) {
+	linked_hashmap(){
+		size_ = 0;
+		cap = initial_cap;
+		order = list();
+		data = new typename sjtu::double_list<addr>[cap];
 	}
-	linked_hashmap(const linked_hashmap &other):size_(other.size_),cap(other.cap),data(other.data),order(other.order){
+	linked_hashmap(const linked_hashmap &other){
+		size_ = other.size_;
+		cap = other.cap;
+		data = new double_list<addr>[cap];
+		order = other.order;
+		for(int i=0;i<cap;i++){
+			data[i] = other.data[i];
+		}
 	}
 	~linked_hashmap() {
 		clear();
@@ -679,9 +694,10 @@ public:
 		delete[] this->data;
 		cap = other.cap;
 		size_ = other.size_;
-		data = new list[cap];//cap = 0?
+		data = new double_list<addr>[cap];//cap = 0?
+		order = other.order;
 		for(int i=0;i<cap;i++){
-			this->insert(other.order[i]);
+			data[i] = other.data[i];
 		}
 		return *this;
 	}
@@ -718,7 +734,7 @@ public:
 	iterator begin() {
 		return iterator(order.begin());
 	}
-	const_iterator cbegin() const {
+	const_iterator cbegin() {
 		return const_iterator(order.begin());
 	}
     /**
@@ -727,7 +743,7 @@ public:
 	iterator end() {
 		return iterator(order.end());
 	}
-	const_iterator cend() const {
+	const_iterator cend() {
 		return const_iterator(order.end());
 	}
   	/**
@@ -803,7 +819,7 @@ public:
 	 * return how many value_pairs consist of key
 	 * this should only return 0 or 1
 	*/
-	size_t count(const Key &key) const {
+	size_t count(const Key &key) {
 		return find(key) != end();
 	}
 	/**
