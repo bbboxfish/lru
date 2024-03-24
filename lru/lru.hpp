@@ -98,14 +98,14 @@ template<class T> class double_list{
 		 */
 		iterator operator++(int) {
 			iterator tmp = *this;
-			it = it -> next;
+			it = it -> prev;
 			return *this;
 		}
         /**
 		 * ++iter
 		 */
 		iterator &operator++() {
-			it = it->next;
+			it = it->prev;
 			return *this;
 		}
         /**
@@ -113,14 +113,14 @@ template<class T> class double_list{
 		 */
 		iterator operator--(int) {
 			iterator tmp = *this;
-			it = it -> prev;
+			it = it -> next;
 			return *this;
 		}
         /**
 		 * --iter
 		 */
 		iterator &operator--() {
-			it = it->prev;
+			it = it->next;
 			return *this;
 		}
 		/**
@@ -151,6 +151,9 @@ template<class T> class double_list{
 	 */
 	iterator begin(){
 		return iterator(head);
+	}
+	iterator tail_(){
+		return iterator(tail);
 	}
 	/**
 	 * return an iterator to the ending
@@ -732,10 +735,10 @@ public:
 	 * inserted and existed element
 	 */
 	iterator begin() {
-		return iterator(order.begin());
+		return iterator(order.tail_());
 	}
 	const_iterator cbegin() {
-		return const_iterator(order.begin());
+		return const_iterator(order.tail_());
 	}
     /**
 	 * return an iterator after the last inserted element
@@ -779,7 +782,7 @@ public:
 	hash_iterator exist(const Key& key){//是否存在
 		size_t v = hash(key) % cap;
 		typename sjtu::double_list<addr> &pos = data[v];
-		for(auto item = pos.begin();item != pos.end();item++){
+		for(auto item = pos.begin();item != pos.end();item--){
 			value_type &p = **item;
 			if(equal(key,p.first))
 			return hash_iterator(&pos,item);
@@ -793,11 +796,16 @@ public:
 		if(tmp.it_ != tmp.pos->end()){//找到
 			order.erase(*(tmp.it_));
 			order.insert_head(value);//更新
+			size_t h = hash(value.first) %cap;
+			tmp.pos->erase(tmp.it_);
+			tmp.pos->insert_head(order.begin());
 			return pair<iterator,bool>(iterator(begin()),false);
 		}
 		else{
 			size_++;
 			order.insert_head(value);
+			size_t h = hash(value.first) %cap;
+			data[h].insert_head(order.begin());//
 			return pair<iterator,bool>(iterator(begin()),true);
 		}
 	}
@@ -838,7 +846,7 @@ public:
 		delete[] data;
 		data = new typename sjtu::double_list<addr>[newcap];
 		cap = newcap;
-		for (auto t = order.begin(); t != order.end(); ++t){
+		for (auto t = order.begin(); t != order.end(); --t){
 			value_type &pr = (*t);
 			data[hash(pr.first)%cap].insert_head(t);
 		}
@@ -882,6 +890,9 @@ public:
      * change the order.
     */
     void print(){
+		for(auto i= lhm.order.begin() ;i!=lhm.order.end();i--){
+			std::cout<<(*i).first.val<<" "<<(*i).second<<std::endl;
+		}
     }
 };
 }
